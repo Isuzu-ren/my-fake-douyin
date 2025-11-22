@@ -48,7 +48,7 @@ public class UserDataManager {
                 R.drawable.avator_3,
                 "Charlie",
                 "charlie789",
-                "C",
+                "",
                 true,
                 false,
                 new Date(System.currentTimeMillis() - 72 * 60 * 60 * 1000)

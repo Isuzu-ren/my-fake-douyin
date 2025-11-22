@@ -24,4 +24,10 @@
         <item name="android:shadowDy">@dimen/shadow_offset</item>
         <item name="android:shadowRadius">@dimen/shadow_radius</item>
     </style>
+
+    <!-- 圆形头像样式 -->
+    <style name="circleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

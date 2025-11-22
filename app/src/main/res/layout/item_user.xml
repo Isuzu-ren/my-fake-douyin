@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/user_avatar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/avator_1"
+        android:scaleType="centerCrop"
+        android:contentDescription="用户头像"
+        app:shapeAppearanceOverlay="@style/circleImageView" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户名"
+            android:id="@+id/user_name"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/specialBadge"
+            android:layout_marginStart="8dp"
+            android:text="特别关注"
+            android:textSize="10sp"
+            android:textColor="#BDBDBD"
+            android:background="@drawable/special_badge"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="2dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:text="已关注"
+        android:textSize="12sp"
+        android:id="@+id/follow_button"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/btn_following" />
+
+
+</LinearLayout>
