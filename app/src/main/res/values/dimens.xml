@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 文字尺寸 -->
+    <dimen name="text_size_medium">20sp</dimen>
+
+    <!-- 阴影尺寸 -->
+    <dimen name="shadow_offset">1</dimen>
+    <dimen name="shadow_radius">2</dimen>
+</resources>

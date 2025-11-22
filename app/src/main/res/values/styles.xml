@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 基础应用主题 -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#3F51B5</item>
+        <item name="colorPrimaryDark">#303F9F</item>
+        <item name="colorAccent">#FF4081</item>
+    </style>
+
+    <!-- 等宽粗体黑色文字样式 -->
+    <style name="MonospaceBoldText">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">monospace</item>
+    </style>
+    <style name="MonospaceBoldText_Shadow">
+        <item name="android:textSize">@dimen/text_size_medium</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:shadowColor">@color/shadow_dark</item>
+        <item name="android:shadowDx">@dimen/shadow_offset</item>
+        <item name="android:shadowDy">@dimen/shadow_offset</item>
+        <item name="android:shadowRadius">@dimen/shadow_radius</item>
+    </style>
+</resources>
