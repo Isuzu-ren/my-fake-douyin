@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,6 +25,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         void onUnfollowClick(int position);
 
         void onItemClick(int position);
+
+        void onMoreClick(int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -57,6 +60,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         private TextView username;
         private TextView specialBadge;
         private Button unfollowButton;
+        private ImageButton MoreButton;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,6 +68,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             username = itemView.findViewById(R.id.user_name);
             specialBadge = itemView.findViewById(R.id.specialBadge);
             unfollowButton = itemView.findViewById(R.id.follow_button);
+            MoreButton = itemView.findViewById(R.id.moreinfo_button);
 
             unfollowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -72,6 +77,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {
                             onItemClickListener.onUnfollowClick(position);
+                        }
+                    }
+                }
+            });
+
+            MoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (onItemClickListener != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            onItemClickListener.onMoreClick(position);
                         }
                     }
                 }

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/top_rounded_bottom_sheet"
+    android:paddingTop="16dp">
+
+    <!-- 第一层：用户信息（根据备注状态动态显示） -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        android:id="@+id/dialog_content">
+
+        <!-- 第一行：有备注显示备注，无备注显示用户名 -->
+        <TextView
+            android:id="@+id/dialog_display_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="显示名称"
+            android:textSize="18sp"
+            android:textColor="#333333"
+            android:textStyle="bold" />
+
+        <!-- 第二行：有备注显示用户名+ID，无备注显示ID -->
+        <TextView
+            android:id="@+id/dialog_user_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户信息"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:layout_marginTop="2dp" />
+
+    </LinearLayout>
+
+    <!-- 分隔线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F0F0F0"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 第二层：特别关注开关 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="  特别关注"
+            android:textSize="16sp"
+            android:textColor="#333333" />
+
+        <!-- 自定义滑动开关 -->
+        <LinearLayout
+            android:id="@+id/special_switch_container"
+            android:layout_width="50dp"
+            android:layout_height="24dp"
+            android:background="@drawable/switch_track"
+            android:padding="2dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <!-- 滑动圆圈 -->
+            <View
+                android:id="@+id/special_switch_thumb"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/switch_thumb" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 第三层：设置备注按钮 -->
+    <Button
+        android:id="@+id/btn_set_note"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="  设置备注"
+        android:textSize="16sp"
+        android:textColor="#333333"
+        android:background="@drawable/set_note_button"
+        android:gravity="center_vertical"
+        android:drawablePadding="8dp"
+        android:drawableEnd="@drawable/ic_edit_note"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp" />
+
+    <!-- 第四层：取消关注按钮 -->
+    <Button
+        android:id="@+id/btn_unfollow_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="  取消关注"
+        android:textSize="16sp"
+        android:textColor="#FF4081"
+        android:background="@drawable/unfollow_button"
+        android:gravity="center_vertical"
+        android:drawableEnd="@drawable/ic_cancel"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp" />
+
+</LinearLayout>

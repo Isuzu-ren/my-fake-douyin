@@ -28,7 +28,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             case 3:
                 return new FragmentFriend();
             default:
-                return new FragmentMutuals();
+                return new FragmentFollowing();
         }
     }
 

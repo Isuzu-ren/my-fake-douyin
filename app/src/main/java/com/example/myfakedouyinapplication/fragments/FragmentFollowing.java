@@ -17,6 +17,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.myfakedouyinapplication.R;
 import com.example.myfakedouyinapplication.adapters.UserAdapter;
+import com.example.myfakedouyinapplication.dialogs.UserActionsDialog;
 import com.example.myfakedouyinapplication.models.User;
 import com.example.myfakedouyinapplication.models.UserDataManager;
 
@@ -143,6 +144,7 @@ public class FragmentFollowing extends Fragment {
                 User user = followingList.get(position);
                 if (user.isFollowed()) {
                     user.setFollowed(false);
+                    user.setSpecial(false);
                 } else {
                     user.setFollowed(true);
                 }
@@ -156,6 +158,11 @@ public class FragmentFollowing extends Fragment {
                 User user = followingList.get(position);
                 String message = "已选中 " + user.getDisplayName();
                 showToast(message);
+            }
+
+            @Override
+            public void onMoreClick(int position) {
+                showUserActionsDialog(position);
             }
         });
     }
@@ -189,6 +196,77 @@ public class FragmentFollowing extends Fragment {
                     userAdapter.notifyDataSetChanged();
                 }
                 updateFollowingCount();
+            }
+        }
+    }
+
+    private void showUserActionsDialog(int position) {
+        if (position < 0 || position >= followingList.size()) {
+            return;
+        }
+        User user = followingList.get(position);
+        UserActionsDialog dialog = new UserActionsDialog(getContext(), user,
+                new UserActionsDialog.OnUserActionListener() {
+                    @Override
+                    public void onSpecialChanged(String userId, boolean isSpecial) {
+                        updateUserSpecial(userId, isSpecial);
+                    }
+
+                    @Override
+                    public void onNoteChanged(String userId, String note) {
+                        updateUserNote(userId, note);
+                    }
+
+                    @Override
+                    public void onUnfollow(String userId) {
+                        updateUserUnfollow(userId);
+                    }
+                }
+        );
+
+        dialog.show();
+    }
+
+    private void updateUserSpecial(String userId, boolean isSpecial) {
+        for (int i = 0; i < followingList.size(); i++) {
+            User user = followingList.get(i);
+            if (user.getUserId().equals(userId)) {
+                user.setSpecial(isSpecial);
+                userDataManager.updateUser(user);
+                if (userAdapter != null) {
+                    userAdapter.notifyItemChanged(i);
+                }
+                break;
+            }
+        }
+    }
+
+    private void updateUserNote(String userId, String note) {
+        for (int i = 0; i < followingList.size(); i++) {
+            User user = followingList.get(i);
+            if (user.getUserId().equals(userId)) {
+                user.setNote(note);
+                userDataManager.updateUser(user);
+                if (userAdapter != null) {
+                    userAdapter.notifyItemChanged(i);
+                }
+                break;
+            }
+        }
+    }
+
+    private void updateUserUnfollow(String userId) {
+        for (int i = 0; i < followingList.size(); i++) {
+            User user = followingList.get(i);
+            if (user.getUserId().equals(userId)) {
+                user.setFollowed(false);
+                user.setSpecial(false);
+                userDataManager.updateUser(user);
+                if (userAdapter != null) {
+                    userAdapter.notifyItemChanged(i);
+                }
+                updateFollowingCount();
+                break;
             }
         }
     }
