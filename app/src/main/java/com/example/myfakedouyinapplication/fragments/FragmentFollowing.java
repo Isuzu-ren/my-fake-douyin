@@ -1,5 +1,6 @@
 package com.example.myfakedouyinapplication.fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +19,12 @@ import com.example.myfakedouyinapplication.adapters.UserAdapter;
 import com.example.myfakedouyinapplication.models.User;
 import com.example.myfakedouyinapplication.models.UserDataManager;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FragmentFollowing extends Fragment {
     private TextView followingCountText;
-    private final UserDataManager userDataManager = UserDataManager.getInstance();
+    private UserDataManager userDataManager;
     private RecyclerView userRecyclerView;
     private UserAdapter userAdapter;
     private List<User> followingList;
@@ -35,13 +37,12 @@ public class FragmentFollowing extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_following, container, false);
-        followingList = userDataManager.getFollowingUsers();
+
+        userDataManager = UserDataManager.getInstance(getContext());
 
         initView(view);
 
-        setupRecyclerView();
-
-        updateFollowingCount();
+        loadFollowingData();
 
         return view;
     }
@@ -49,6 +50,26 @@ public class FragmentFollowing extends Fragment {
     private void initView(View view) {
         followingCountText = view.findViewById(R.id.following_count_text);
         userRecyclerView = view.findViewById(R.id.following_recycler_view);
+    }
+
+    private void loadFollowingData() {
+        new AsyncTask<Void, Void, List<User>>() {
+            @Override
+            protected List<User> doInBackground(Void... voids) {
+                return userDataManager.getFollowingUsers();
+            }
+
+            @Override
+            protected void onPostExecute(List<User> users) {
+                if (users != null) {
+                    followingList = users;
+                    setupRecyclerView();
+                    updateFollowingCount();
+                } else {
+                    showToast("无法加载关注列表");
+                }
+            }
+        }.execute();
     }
 
     private void setupRecyclerView() {
@@ -67,31 +88,25 @@ public class FragmentFollowing extends Fragment {
                 User user = followingList.get(position);
                 if (user.isFollowed()) {
                     user.setFollowed(false);
-                    userAdapter.notifyItemChanged(position);
-
-                    //
-
-                    updateFollowingCount();
                 } else {
                     user.setFollowed(true);
-                    userAdapter.notifyItemChanged(position);
-                    updateFollowingCount();
                 }
+                userDataManager.updateUser(user);
+                userAdapter.notifyItemChanged(position);
+                updateFollowingCount();
             }
 
             @Override
             public void onItemClick(int position) {
                 User user = followingList.get(position);
                 String message = "已选中 " + user.getDisplayName();
-                if (getContext() != null) {
-                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                }
+                showToast(message);
             }
         });
     }
 
     private void updateFollowingCount() {
-        if (followingCountText == null) {
+        if (followingCountText == null || followingList == null) {
             return;
         }
         int followingCount = 0;
@@ -107,6 +122,23 @@ public class FragmentFollowing extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        updateFollowingCount();
+        if (userDataManager != null) {
+            userDataManager.refreshData();
+            if (followingList != null) {
+                followingList.clear();
+                followingList.addAll(userDataManager.getFollowingUsers());
+                if (userAdapter != null) {
+                    userAdapter.notifyDataSetChanged();
+                }
+                updateFollowingCount();
+            }
+        }
+    }
+
+    private void showToast(final String message) {
+        if (getContext() == null) {
+            return;
+        }
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

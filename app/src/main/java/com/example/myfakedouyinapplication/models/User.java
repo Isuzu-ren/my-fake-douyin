@@ -1,17 +1,31 @@
 package com.example.myfakedouyinapplication.models;
 
+import android.util.Log;
+
 import java.util.Date;
 
 public class User {
     private int avatarResId;
+    private String avatarUrl;
     private String username;
     private String userId;
     private String note;
     private boolean isFollowed;
     private boolean isSpecial;
     private Date followDate;
+    private Long createTime;
+    private Long updateTime;
+    private int syncStatus;
+
+    public User() {
+        long currentTime = System.currentTimeMillis();
+        this.createTime = currentTime;
+        this.updateTime = currentTime;
+        this.syncStatus = 0; // Default sync status
+    }
 
     public User(int avatarResId, String username, String userId, String note, boolean isFollowed, boolean isSpecial, Date followDate) {
+        this();
         this.avatarResId = avatarResId;
         this.username = username;
         this.userId = userId;
@@ -31,6 +45,10 @@ public class User {
 
     public int getAvatarResId() {
         return avatarResId;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
     public String getUsername() {
@@ -57,8 +75,33 @@ public class User {
         return followDate;
     }
 
+    public long getFollowTimeMillis() {
+        if (followDate != null) {
+            return followDate.getTime();
+        } else {
+            Log.w("User", "Follow date is null for user: " + username);
+            return 0;
+        }
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public int getSyncStatus() {
+        return syncStatus;
+    }
+
     public void setAvatarResId(int avatarResId) {
         this.avatarResId = avatarResId;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public void setUsername(String username) {
@@ -83,6 +126,22 @@ public class User {
 
     public void setFollowDate(Date followDate) {
         this.followDate = followDate;
+    }
+
+    public void setFollowTimeMillis(long timeMillis) {
+        this.followDate = new Date(timeMillis);
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public void setSyncStatus(int syncStatus) {
+        this.syncStatus = syncStatus;
     }
 
     public String getDisplayName() {
