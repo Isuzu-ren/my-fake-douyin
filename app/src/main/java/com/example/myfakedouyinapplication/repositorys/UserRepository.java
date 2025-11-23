@@ -131,6 +131,46 @@ public class UserRepository {
                 true,
                 new java.util.Date(System.currentTimeMillis() - 5 * 60 * 60 * 1000)
         ));
+
+        addUser(new User(
+                R.drawable.avator_5,
+                "Ethan",
+                "ethan555",
+                "E5",
+                true,
+                false,
+                new java.util.Date(System.currentTimeMillis() - 10 * 60 * 60 * 1000)
+        ));
+
+        addUser(new User(
+                R.drawable.avator_6,
+                "Fiona",
+                "fiona666",
+                "",
+                true,
+                true,
+                new java.util.Date(System.currentTimeMillis() - 15 * 60 * 60 * 1000)
+        ));
+
+        addUser(new User(
+                R.drawable.avator_7,
+                "George",
+                "george777",
+                "G7",
+                true,
+                false,
+                new java.util.Date(System.currentTimeMillis() - 20 * 60 * 60 * 1000)
+        ));
+
+        addUser(new User(
+                R.drawable.avator_8,
+                "Hannah",
+                "hannah888",
+                "",
+                true,
+                true,
+                new java.util.Date(System.currentTimeMillis() - 30 * 60 * 60 * 1000)
+        ));
     }
 
     private void showToast(String message) {

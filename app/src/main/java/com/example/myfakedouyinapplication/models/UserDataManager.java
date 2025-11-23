@@ -101,7 +101,7 @@ public class UserDataManager {
 
     public List<User> getFollowingUsers() {
         if (!isInitialized) {
-            showToast("User data is still initializing. Please wait.");
+            // showToast("User data is still initializing. Please wait.");
             new AsyncTask<Void, Void, List<User>>() {
                 @Override
                 protected List<User> doInBackground(Void... voids) {
@@ -158,9 +158,9 @@ public class UserDataManager {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
-                    showToast("User added successfully");
+                    // showToast("User added successfully");
                 } else {
-                    showToast("Failed to add user");
+                    // showToast("Failed to add user");
                 }
             }
         }.execute(user);
@@ -190,9 +190,9 @@ public class UserDataManager {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
-                    showToast("User removed successfully");
+                    // showToast("User removed successfully");
                 } else {
-                    showToast("Failed to remove user");
+                    // showToast("Failed to remove user");
                 }
             }
         }.execute(userId);
@@ -231,9 +231,9 @@ public class UserDataManager {
             @Override
             protected void onPostExecute(Boolean success) {
                 if (success) {
-                    showToast("User updated successfully");
+                    // showToast("User updated successfully");
                 } else {
-                    showToast("Failed to update user");
+                    // showToast("Failed to update user");
                 }
             }
         }.execute(updatedUser);
@@ -259,9 +259,9 @@ public class UserDataManager {
                 if (users != null) {
                     followingUsers.clear();
                     followingUsers.addAll(users);
-                    showToast("User data refreshed");
+                    // showToast("User data refreshed");
                 } else {
-                    showToast("Failed to refresh user data");
+                    // showToast("Failed to refresh user data");
                 }
             }
         }.execute();

@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.myfakedouyinapplication.R;
 import com.example.myfakedouyinapplication.adapters.UserAdapter;
@@ -24,8 +25,9 @@ import java.util.List;
 
 public class FragmentFollowing extends Fragment {
     private TextView followingCountText;
-    private UserDataManager userDataManager;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView userRecyclerView;
+    private UserDataManager userDataManager;
     private UserAdapter userAdapter;
     private List<User> followingList;
 
@@ -40,19 +42,69 @@ public class FragmentFollowing extends Fragment {
 
         userDataManager = UserDataManager.getInstance(getContext());
 
-        initView(view);
+        initViews(view);
 
-        loadFollowingData();
+        setupSwipeRefreshLayout();
+
+        setupRecyclerView();
+
+        loadFollowingData(true);
 
         return view;
     }
 
-    private void initView(View view) {
+    private void initViews(View view) {
         followingCountText = view.findViewById(R.id.following_count_text);
         userRecyclerView = view.findViewById(R.id.following_recycler_view);
+        swipeRefreshLayout = view.findViewById(R.id.following_swipe_refresh);
     }
 
-    private void loadFollowingData() {
+    private void setupSwipeRefreshLayout() {
+        swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light
+        );
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refrashData();
+            }
+        });
+    }
+
+    private void refrashData() {
+        swipeRefreshLayout.setRefreshing(true);
+        new AsyncTask<Void, Void, List<User>>() {
+            @Override
+            protected List<User> doInBackground(Void... voids) {
+                userDataManager.refreshData();
+                return userDataManager.getFollowingUsers();
+            }
+
+            @Override
+            protected void onPostExecute(List<User> users) {
+                swipeRefreshLayout.setRefreshing(false);
+                if (users != null) {
+                    followingList = users;
+                    if (userAdapter != null) {
+                        userAdapter.updateData(followingList);
+                    }
+                    updateFollowingCount();
+                } else {
+                    showToast("无法刷新关注列表");
+                }
+            }
+        }.execute();
+    }
+
+    private void loadFollowingData(final boolean showRefreshing) {
+        if (showRefreshing) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
+
         new AsyncTask<Void, Void, List<User>>() {
             @Override
             protected List<User> doInBackground(Void... voids) {
@@ -63,11 +115,14 @@ public class FragmentFollowing extends Fragment {
             protected void onPostExecute(List<User> users) {
                 if (users != null) {
                     followingList = users;
-                    setupRecyclerView();
+                    if (userAdapter != null) {
+                        userAdapter.updateData(followingList);
+                    }
                     updateFollowingCount();
                 } else {
                     showToast("无法加载关注列表");
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
         }.execute();
     }
@@ -122,6 +177,9 @@ public class FragmentFollowing extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+//        if (userDataManager != null) {
+//            loadFollowingData(false);
+//        }
         if (userDataManager != null) {
             userDataManager.refreshData();
             if (followingList != null) {
