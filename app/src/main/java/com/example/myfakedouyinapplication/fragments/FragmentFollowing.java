@@ -21,7 +21,6 @@ import com.example.myfakedouyinapplication.dialogs.UserActionsDialog;
 import com.example.myfakedouyinapplication.models.User;
 import com.example.myfakedouyinapplication.models.UserDataManager;
 
-import java.util.Collections;
 import java.util.List;
 
 public class FragmentFollowing extends Fragment {

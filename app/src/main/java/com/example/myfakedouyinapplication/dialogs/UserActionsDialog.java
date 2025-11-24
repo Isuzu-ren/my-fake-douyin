@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 
 import com.example.myfakedouyinapplication.R;
 import com.example.myfakedouyinapplication.models.User;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 public class UserActionsDialog extends BottomSheetDialog {

@@ -171,6 +171,24 @@ public class UserRepository {
                 true,
                 new java.util.Date(System.currentTimeMillis() - 30 * 60 * 60 * 1000)
         ));
+
+        // 随机生成更多用户
+        final int additionalUsers = 160;
+        for (int i = 0; i < additionalUsers; i++) {
+            String username = "User" + (i + 9);
+            String userId = "user" + (i + 9) + (int) (Math.random() * 1000);
+            boolean isSpecial = Math.random() < 0.3; // 30% 概率为特别关注
+            String note = Math.random() < 0.2 ? "Note" + (i + 9) : ""; // 20% 概率有备注
+            addUser(new User(
+                    R.drawable.avator_1 + (i % 8), // 循环使用已有头像资源
+                    username,
+                    userId,
+                    note,
+                    true,
+                    isSpecial,
+                    new java.util.Date(System.currentTimeMillis() - (long) ((Math.random() * 72 + 36) * 60 * 60 * 1000)) // 36到108小时内的随机时间
+            ));
+        }
     }
 
     private void showToast(String message) {

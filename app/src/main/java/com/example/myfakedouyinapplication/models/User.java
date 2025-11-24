@@ -5,17 +5,17 @@ import android.util.Log;
 import java.util.Date;
 
 public class User {
-    private int avatarResId;
-    private String avatarUrl;
-    private String username;
-    private String userId;
-    private String note;
-    private boolean isFollowed;
-    private boolean isSpecial;
-    private Date followDate;
-    private Long createTime;
-    private Long updateTime;
-    private int syncStatus;
+    private int avatarResId; // 头像资源ID
+    private String avatarUrl; // 头像URL（暂时未使用）
+    private String username; // 用户名
+    private String userId; // 用户ID（唯一标识符）
+    private String note; // 备注
+    private boolean isFollowed; // 是否已关注
+    private boolean isSpecial; // 是否为特别关注
+    private Date followDate; // 关注日期
+    private Long createTime; // 创建时间
+    private Long updateTime; // 更新时间
+    private int syncStatus; // 同步状态（暂时未使用）
 
     public User() {
         long currentTime = System.currentTimeMillis();
