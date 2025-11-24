@@ -34,14 +34,14 @@
 ## 📁 项目结构
 
 ```
-app/
-├── src/main/java/com/example/myfakedouyinapplication/
+app/src/main/
+├── java/com/example/myfakedouyinapplication/
 │   ├── MainActivity.java           # 主活动，管理标签页
 │   ├── fragments/                  # 页面类
-│   │   ├── Fragment1.java          # 关注页面
-│   │   ├── Fragment2.java          # 推荐页面
-│   │   ├── Fragment3.java          # 发现页面
-│   │   └── Fragment4.java          # 我的页面
+│   │   ├── FragmentFollower.java   # 粉丝页面
+│   │   ├── FragmentFollowing.java  # 关注页面
+│   │   ├── FragmentFriend.java     # 朋友页面
+│   │   └── FragmentMutuals.java    # 互关页面
 │   ├── adapters/                   # 适配器类
 │   │   ├── ViewPagerAdapter.java   # 页面适配器
 │   │   └── UserAdapter.java        # 用户列表适配器
