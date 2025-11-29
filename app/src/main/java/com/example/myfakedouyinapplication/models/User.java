@@ -1,10 +1,14 @@
 package com.example.myfakedouyinapplication.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.util.Date;
 
-public class User {
+public class User implements Parcelable {
     private int avatarResId; // 头像资源ID
     private String avatarUrl; // 头像URL（暂时未使用）
     private String username; // 用户名
@@ -162,5 +166,52 @@ public class User {
                 ", isSpecial=" + isSpecial +
                 ", followDate=" + followDate +
                 '}';
+    }
+
+    protected User(Parcel in) {
+        avatarResId = in.readInt();
+        avatarUrl = in.readString();
+        username = in.readString();
+        userId = in.readString();
+        note = in.readString();
+        isFollowed = in.readByte() != 0;
+        isSpecial = in.readByte() != 0;
+        long tmpDate = in.readLong();
+        followDate = tmpDate != -1 ? new Date(tmpDate) : null;
+        createTime = in.readLong();
+        updateTime = in.readLong();
+        syncStatus = in.readInt();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(avatarResId);
+        dest.writeString(avatarUrl);
+        dest.writeString(username);
+        dest.writeString(userId);
+        dest.writeString(note);
+        dest.writeByte((byte) (isFollowed ? 1 : 0));
+        dest.writeByte((byte) (isSpecial ? 1 : 0));
+        dest.writeLong(followDate != null ? followDate.getTime() : -1);
+        dest.writeLong(createTime);
+        dest.writeLong(updateTime);
+        dest.writeInt(syncStatus);
     }
 }

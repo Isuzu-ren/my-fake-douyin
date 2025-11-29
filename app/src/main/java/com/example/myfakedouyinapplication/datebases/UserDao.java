@@ -11,6 +11,15 @@ import com.example.myfakedouyinapplication.models.User;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 用户数据访问对象（当前阶段暂未使用）
+ * <p>
+ * 注意：二阶段需求改为从服务端获取数据，本地数据库功能暂时停用。
+ * 保留此类为未来可能的离线功能或缓存功能做准备。
+ *
+ * @deprecated 当前版本使用服务端数据，此类暂未激活
+ */
+@Deprecated
 public class UserDao {
     private SQLiteDatabase database;
     private UserDatabaseHelper dbHelper;

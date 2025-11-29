@@ -1,282 +1,65 @@
 package com.example.myfakedouyinapplication.models;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
-
-import com.example.myfakedouyinapplication.R;
-import com.example.myfakedouyinapplication.repositorys.UserRepository;
+import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
+/**
+ * UserDataManager - 已过时
+ *
+ * @deprecated 已由新的 ThreadManager + UserRepository 架构替代
+ * 保留此类仅为向后兼容，新代码请使用 {@link com.example.myfakedouyinapplication.core.ThreadManager}
+ * <p>
+ * 迁移指南：
+ * 1. 数据获取：使用 ThreadManager.getInstance().loadMoreUsers(page)
+ * 2. 用户操作：使用 ThreadManager.getInstance().followUser(userId) 等
+ * 3. 生命周期：在onDestroy中调用 ThreadManager.getInstance().shutdown()
+ */
+@Deprecated
 public class UserDataManager {
+    private static final String TAG = "UserDataManager[Deprecated]";
     private static UserDataManager instance;
-    private List<User> followingUsers;
-    private UserRepository userRepository;
-    private Context context;
-    private boolean isInitialized = false;
 
-    private UserDataManager(Context context) {
-        this.context = context.getApplicationContext();
-        followingUsers = new ArrayList<>();
-        userRepository = new UserRepository(this.context);
-        initializeData();
-    }
-
+    // 空实现或抛出异常，防止误用
     public static UserDataManager getInstance(Context context) {
+        Log.w(TAG, "⚠️ UserDataManager 已过时，请使用 ThreadManager");
         if (instance == null) {
-            synchronized (UserDataManager.class) {
-                if (instance == null) {
-                    instance = new UserDataManager(context);
-                }
-            }
+            instance = new UserDataManager();
         }
         return instance;
     }
 
-    private void initializeData() {
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    userRepository.open();
-                    userRepository.initSampleData();
-                    List<User> users = userRepository.getFollowedUsers();
-                    if (users != null) {
-                        followingUsers.clear();
-                        followingUsers.addAll(users);
-                    }
-                    return true;
-                } catch (Exception e) {
-                    showToast("Failed to initialize user data: " + e.getMessage());
-                    return false;
-                } finally {
-                    userRepository.close();
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean success) {
-                isInitialized = success;
-            }
-        }.execute();
+    // 返回空列表或模拟数据
+    public List<User> getFollowedUsers() {
+        Log.w(TAG, "此方法已过时，返回空列表");
+        return new ArrayList<>();
     }
 
-//    private void initSampleData() {
-//        followingUsers.add(new User(
-//                R.drawable.avator_1,
-//                "Alice",
-//                "alice123",
-//                "A",
-//                true,
-//                false,
-//                new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000)
-//        ));
-//
-//        followingUsers.add(new User(
-//                R.drawable.avator_2,
-//                "Bob",
-//                "bob456",
-//                "B",
-//                true,
-//                true,
-//                new Date(System.currentTimeMillis() - 48 * 60 * 60 * 1000)
-//        ));
-//
-//        followingUsers.add(new User(
-//                R.drawable.avator_3,
-//                "Charlie",
-//                "charlie789",
-//                "",
-//                true,
-//                false,
-//                new Date(System.currentTimeMillis() - 72 * 60 * 60 * 1000)
-//        ));
-//    }
-
-    public List<User> getFollowingUsers() {
-        if (!isInitialized) {
-            // showToast("User data is still initializing. Please wait.");
-            new AsyncTask<Void, Void, List<User>>() {
-                @Override
-                protected List<User> doInBackground(Void... voids) {
-                    try {
-                        if (!userRepository.isOpen()) {
-                            userRepository.open();
-                        }
-                        return userRepository.getFollowedUsers();
-                    } catch (Exception e) {
-                        showToast("Failed to fetch user data: " + e.getMessage());
-                        return new ArrayList<>();
-                    }
-                }
-
-                @Override
-                protected void onPostExecute(List<User> users) {
-                    if (users != null) {
-                        followingUsers.clear();
-                        followingUsers.addAll(users);
-                        isInitialized = true;
-                    }
-                }
-            }.execute();
-        }
-        return new ArrayList<>(followingUsers);
-    }
-
-    public int getFollowingCount() {
-        int count = 0;
-        for (User user : followingUsers) {
-            if (user.isFollowed()) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public void addUser(User user) {
-        new AsyncTask<User, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(User... users) {
-                try {
-                    boolean success = userRepository.addUser(users[0]);
-                    if (success) {
-                        followingUsers.add(users[0]);
-                    }
-                    return success;
-                } catch (Exception e) {
-                    showToast("Failed to add user: " + e.getMessage());
-                    return false;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean success) {
-                if (success) {
-                    // showToast("User added successfully");
-                } else {
-                    // showToast("Failed to add user");
-                }
-            }
-        }.execute(user);
-    }
-
-    public void removeUser(String userId) {
-        new AsyncTask<String, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(String... userIds) {
-                try {
-                    User user = getUserById(userIds[0]);
-                    if (user != null) {
-                        user.setFollowed(false);
-                        boolean success = userRepository.updateUser(user);
-                        if (success) {
-                            followingUsers.remove(user);
-                        }
-                        return success;
-                    }
-                    return false;
-                } catch (Exception e) {
-                    showToast("Failed to remove user: " + e.getMessage());
-                    return false;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean success) {
-                if (success) {
-                    // showToast("User removed successfully");
-                } else {
-                    // showToast("Failed to remove user");
-                }
-            }
-        }.execute(userId);
-    }
-
-    public User getUserById(String userId) {
-        for (User user : followingUsers) {
-            if (user.getUserId().equals(userId)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    public void updateUser(User updatedUser) {
-        new AsyncTask<User, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(User... users) {
-                try {
-                    boolean success = userRepository.updateUser(users[0]);
-                    if (success) {
-                        for (int i = 0; i < followingUsers.size(); i++) {
-                            if (followingUsers.get(i).getUserId().equals(users[0].getUserId())) {
-                                followingUsers.set(i, users[0]);
-                                break;
-                            }
-                        }
-                    }
-                    return success;
-                } catch (Exception e) {
-                    showToast("Failed to update user: " + e.getMessage());
-                    return false;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean success) {
-                if (success) {
-                    // showToast("User updated successfully");
-                } else {
-                    // showToast("Failed to update user");
-                }
-            }
-        }.execute(updatedUser);
-    }
-
+    // 空实现
     public void refreshData() {
-        new AsyncTask<Void, Void, List<User>>() {
-            @Override
-            protected List<User> doInBackground(Void... voids) {
-                try {
-                    if (!userRepository.isOpen()) {
-                        userRepository.open();
-                    }
-                    return userRepository.getFollowedUsers();
-                } catch (Exception e) {
-                    showToast("Failed to refresh user data: " + e.getMessage());
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(List<User> users) {
-                if (users != null) {
-                    followingUsers.clear();
-                    followingUsers.addAll(users);
-                    // showToast("User data refreshed");
-                } else {
-                    // showToast("Failed to refresh user data");
-                }
-            }
-        }.execute();
+        Log.w(TAG, "此方法已过时，无实际操作");
     }
 
-//    public void clearUsers() {
-//        followingUsers.clear();
-//    }
+    // 空实现
+    public void updateUser(User user) {
+        Log.w(TAG, "此方法已过时，无实际操作");
+    }
 
-    private void showToast(final String message) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-            }
-        });
+    // 添加迁移提示方法
+    public void showMigrationGuide() {
+        Log.e(TAG, "================================================");
+        Log.e(TAG, "❌ UserDataManager 已过时，请迁移到新架构：");
+        Log.e(TAG, "✅ 新架构：ThreadManager + UserRepository + UserDataTaskHandler");
+        Log.e(TAG, "✅ 获取实例：ThreadManager.getInstance()");
+        Log.e(TAG, "✅ 初始化：threadManager.initialize(context, fragment)");
+        Log.e(TAG, "✅ 加载数据：threadManager.loadMoreUsers(page)");
+        Log.e(TAG, "================================================");
+    }
+
+    // 私有构造函数，防止外部实例化
+    private UserDataManager() {
+        Log.w(TAG, "UserDataManager 已过时，请使用新的 ThreadManager 架构");
     }
 }

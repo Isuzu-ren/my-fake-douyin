@@ -4,6 +4,13 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * 数据库帮助类（当前阶段暂未使用）
+ * <p>
+ * 保留此类为未来功能扩展做准备。
+ * 当前版本数据全部来自服务端，无需本地持久化。
+ */
+@Deprecated
 public class UserDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "user.db";
     private static final int DATABASE_VERSION = 1;
