@@ -110,12 +110,22 @@ public class UserRepository {
     }
 
     /**
+     * 生成网络头像URL
+     */
+    private String generateAvatarUrl(int index) {
+        // 使用稳定的图片服务（避免随机变化导致重复加载）
+        int imageId = index % 100; // 限制在100张图片内循环
+        return "https://picsum.photos/200/200?image=" + imageId;
+    }
+
+    /**
      * 创建模拟用户
      */
     private User createMockUser(int index) {
         User user = new User();
         user.setUserId("user_" + index);
         user.setUsername("User " + index);
+        user.setAvatarUrl(generateAvatarUrl(index));
         user.setAvatarResId(R.drawable.avator_1 + (index % 8)); // 循环使用已有头像资源
         user.setNote(Math.random() < 0.2 ? "Note " + index : ""); // 20% 概率有备注
         user.setFollowed(true);

@@ -16,6 +16,7 @@ import com.example.myfakedouyinapplication.R;
 import com.example.myfakedouyinapplication.models.User;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.myfakedouyinapplication.utils.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -241,16 +242,8 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         public void bind(User user, int position) {
-            // 设置头像
-            if (user.getAvatarResId() != 0) {
-                Glide.with(itemView.getContext())
-                        .load(user.getAvatarResId())
-                        .apply(new RequestOptions()
-                                .circleCrop()
-                                .placeholder(R.drawable.avator_1)
-                                .error(R.drawable.ic_warning))
-                        .into(avatar);
-            }
+            // 使用ImageLoader加载头像
+            loadUserAvatar(user);
 
             // 设置用户名
             username.setText(user.getDisplayName());
@@ -286,6 +279,18 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     onItemClickListener.onItemClick(getAdapterPosition());
                 }
             });
+        }
+
+        /**
+         * 使用ImageLoader加载用户头像
+         */
+        private void loadUserAvatar(User user) {
+            if (avatar == null) {
+                Log.w(TAG, "ImageView为空，无法加载头像");
+                return;
+            }
+
+            ImageLoader.loadUserAvatar(avatar, user);
         }
 
         private void updateFollowButton(boolean isFollowed) {

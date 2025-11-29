@@ -24,6 +24,7 @@ import com.example.myfakedouyinapplication.constants.MessageConstants;
 import com.example.myfakedouyinapplication.core.ThreadManager;
 import com.example.myfakedouyinapplication.dialogs.UserActionsDialog;
 import com.example.myfakedouyinapplication.models.User;
+import com.example.myfakedouyinapplication.utils.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -402,6 +403,12 @@ public class FragmentFollowing extends Fragment {
                     Log.e(TAG, "用户适配器为null，无法设置数据");
                 }
                 Log.d(TAG, "刷新完成，共 " + usersToAdd.size() + " 条数据");
+
+                // 预加载第一批数据的图片
+                if (getContext() != null) {
+                    ImageLoader.preloadUserAvatars(getContext(), usersToAdd.subList(0, Math.min(usersToAdd.size(), 10)));
+                    Log.d(TAG, "预加载前10个用户头像");
+                }
             } else {
                 // 加载更多：追加数据
                 // 创建复制以避免引用问题
@@ -583,6 +590,11 @@ public class FragmentFollowing extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        // Fragment不可见时，可以暂停图片加载以节省资源
+        if (getContext() != null) {
+            ImageLoader.pauseLoads(getContext());
+            Log.d(TAG, "Fragment暂停，图片加载已暂停");
+        }
 //        Log.d(TAG, "Fragment暂停，保存滚动位置");
 //        saveScrollPosition();
     }
@@ -598,6 +610,11 @@ public class FragmentFollowing extends Fragment {
             refreshData();
         }
 
+        // Fragment恢复可见时，恢复图片加载
+        if (getContext() != null) {
+            ImageLoader.resumeLoads(getContext());
+            Log.d(TAG, "Fragment恢复，图片加载已恢复");
+        }
         // 恢复滚动位置
         // restoreScrollPosition();
     }
@@ -632,6 +649,75 @@ public class FragmentFollowing extends Fragment {
         );
         dialog.show();
     }
+
+    /**
+     * 设置滚动优化 - 提升流畅度
+     */
+    private void setupScrollOptimization() {
+        if (userRecyclerView == null) {
+            return;
+        }
+
+        userRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                switch (newState) {
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        // 开始滚动，暂停图片加载
+                        ImageLoader.pauseLoads(getContext());
+                        Log.d(TAG, "滚动开始，图片加载已暂停");
+                        break;
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        // 停止滚动，恢复图片加载
+                        ImageLoader.resumeLoads(getContext());
+                        Log.d(TAG, "滚动停止，图片加载已恢复");
+                        // 预加载即将可见的项
+                        preloadUpcomingItems();
+                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                        // 惯性滚动中，保持暂停状态
+                        Log.d(TAG, "惯性滚动中，保持图片加载暂停");
+                        break;
+                }
+            }
+        });
+    }
+
+    /**
+     * 预加载即将可见的项
+     */
+    private void preloadUpcomingItems() {
+        if (userRecyclerView == null || userList == null || userList.isEmpty()) {
+            return;
+        }
+
+        LinearLayoutManager layoutManager = (LinearLayoutManager) userRecyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            return;
+        }
+
+        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+        int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
+
+        if (firstVisibleItemPosition == RecyclerView.NO_POSITION || lastVisibleItemPosition == RecyclerView.NO_POSITION) {
+            return;
+        }
+
+        int preloadStart = Math.max(0, lastVisibleItemPosition);
+        int preloadEnd = Math.min(userList.size() - 1, lastVisibleItemPosition + 5); // 预加载接下来的5项
+
+        Log.d(TAG, "预加载项范围: " + preloadStart + " 到 " + preloadEnd);
+
+        for (int i = preloadStart; i <= preloadEnd; i++) {
+            if (i >= 0 && i < userList.size()) {
+                User user = userList.get(i);
+                // 预加载用户头像
+                ImageLoader.preloadUserAvatar(getContext(), user);
+            }
+        }
+    }
+
 
     // 滚动位置保持相关函数
 
@@ -695,84 +781,5 @@ public class FragmentFollowing extends Fragment {
 //     */
 //    private void onDataLoadedRestorePosition() {
 //        restoreScrollPosition();
-//    }
-
-
-//    private void showUserActionsDialog(int position) {
-//        if (position < 0 || position >= userList.size()) {
-//            return;
-//        }
-//        User user = userList.get(position);
-//        UserActionsDialog dialog = new UserActionsDialog(getContext(), user,
-//                new UserActionsDialog.OnUserActionListener() {
-//                    @Override
-//                    public void onSpecialChanged(String userId, boolean isSpecial) {
-//                        updateUserSpecial(userId, isSpecial);
-//                    }
-//
-//                    @Override
-//                    public void onNoteChanged(String userId, String note) {
-//                        updateUserNote(userId, note);
-//                    }
-//
-//                    @Override
-//                    public void onUnfollow(String userId) {
-//                        updateUserUnfollow(userId);
-//                    }
-//                }
-//        );
-//
-//        dialog.show();
-//    }
-//
-//    private void updateUserSpecial(String userId, boolean isSpecial) {
-//        for (int i = 0; i < userList.size(); i++) {
-//            User user = userList.get(i);
-//            if (user.getUserId().equals(userId)) {
-//                user.setSpecial(isSpecial);
-//                userDataManager.updateUser(user);
-//                if (userAdapter != null) {
-//                    userAdapter.notifyItemChanged(i);
-//                }
-//                break;
-//            }
-//        }
-//    }
-//
-//    private void updateUserNote(String userId, String note) {
-//        for (int i = 0; i < userList.size(); i++) {
-//            User user = userList.get(i);
-//            if (user.getUserId().equals(userId)) {
-//                user.setNote(note);
-//                userDataManager.updateUser(user);
-//                if (userAdapter != null) {
-//                    userAdapter.notifyItemChanged(i);
-//                }
-//                break;
-//            }
-//        }
-//    }
-//
-//    private void updateUserUnfollow(String userId) {
-//        for (int i = 0; i < userList.size(); i++) {
-//            User user = userList.get(i);
-//            if (user.getUserId().equals(userId)) {
-//                user.setFollowed(false);
-//                user.setSpecial(false);
-//                userDataManager.updateUser(user);
-//                if (userAdapter != null) {
-//                    userAdapter.notifyItemChanged(i);
-//                }
-//                updateFollowingCount();
-//                break;
-//            }
-//        }
-//    }
-//
-//    private void showToast(final String message) {
-//        if (getContext() == null) {
-//            return;
-//        }
-//        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
 //    }
 }

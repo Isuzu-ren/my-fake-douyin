@@ -6,6 +6,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.myfakedouyinapplication.R;
+
 import java.util.Date;
 
 public class User implements Parcelable {
@@ -67,6 +69,17 @@ public class User implements Parcelable {
 
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    /**
+     * 获取显示用的头像URL（优先使用网络图片）
+     */
+    public String getDisplayAvatarUrl() {
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            return avatarUrl;
+        }
+        // 备用方案：返回本地资源对应的URL
+        return "android.resource://com.example.myfakedouyinapplication/drawable/avatar_" + (avatarResId - R.drawable.avator_1 + 1);
     }
 
     public String getUsername() {
