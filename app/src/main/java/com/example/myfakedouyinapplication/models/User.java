@@ -47,6 +47,20 @@ public class User implements Parcelable {
         this(avatarResId, username, userId, "", true, false, new Date());
     }
 
+    public User(User other) {
+        this.avatarResId = other.avatarResId;
+        this.avatarUrl = other.avatarUrl;
+        this.username = other.username;
+        this.userId = other.userId;
+        this.note = other.note;
+        this.isFollowed = other.isFollowed;
+        this.isSpecial = other.isSpecial;
+        this.followDate = other.followDate != null ? new Date(other.followDate.getTime()) : null;
+        this.createTime = other.createTime;
+        this.updateTime = other.updateTime;
+        this.syncStatus = other.syncStatus;
+    }
+
     public int getAvatarResId() {
         return avatarResId;
     }

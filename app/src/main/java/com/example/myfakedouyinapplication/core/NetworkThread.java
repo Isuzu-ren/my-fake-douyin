@@ -64,15 +64,30 @@ public class NetworkThread extends HandlerThread {
                     break;
 
                 case MessageConstants.MSG_FOLLOW_USER:
-                    userDataHandler.handleFollowUser((String) msg.obj);
+                    userDataHandler.handleFollowUser((String) msg.obj, msg.arg1); // obj传递userId，arg1传递位置
                     break;
 
                 case MessageConstants.MSG_UNFOLLOW_USER:
-                    userDataHandler.handleUnfollowUser((String) msg.obj);
+                    userDataHandler.handleUnfollowUser((String) msg.obj, msg.arg1); // obj传递userId，arg1传递位置
                     break;
 
                 case MessageConstants.MSG_UPDATE_USER:
-                    userDataHandler.handleUpdateUser((User) msg.obj);
+                    userDataHandler.handleUpdateUser((User) msg.obj, msg.arg1); // obj传递User对象，arg1传递位置
+                    break;
+
+                case MessageConstants.MSG_SET_USER_NOTE:
+                    User user = (User) msg.obj; // obj传递User对象
+                    String note = user.getNote();
+                    String userId = user.getUserId();
+                    userDataHandler.handleUpdateUserNote(userId, note, msg.arg1); // arg1传递位置
+                    break;
+
+                case MessageConstants.MSG_TOGGLE_SPECIAL:
+                    userDataHandler.handleUpdateUserSpecial(
+                            (String) msg.obj, // obj传递userId
+                            msg.arg1 == 1,   // arg1传递是否特别关注状态
+                            msg.arg2        // arg2传递位置
+                    );
                     break;
 
                 default:

@@ -172,7 +172,7 @@ public class ThreadManager {
     /**
      * 关注用户
      */
-    public void followUser(String userId) {
+    public void followUser(String userId, int position) {
         if (!isInitialized()) {
             Log.e(TAG, "线程管理器未初始化，无法执行关注操作");
             return;
@@ -183,6 +183,7 @@ public class ThreadManager {
             Message msg = Message.obtain();
             msg.what = MessageConstants.MSG_FOLLOW_USER;
             msg.obj = userId;
+            msg.arg1 = position;
             networkHandler.sendMessage(msg);
             Log.d(TAG, "已发送关注用户请求: " + userId);
         } else {
@@ -193,7 +194,7 @@ public class ThreadManager {
     /**
      * 取消关注用户
      */
-    public void unfollowUser(String userId) {
+    public void unfollowUser(String userId, int position) {
         if (!isInitialized()) {
             Log.e(TAG, "线程管理器未初始化，无法执行取消关注操作");
             return;
@@ -204,6 +205,7 @@ public class ThreadManager {
             Message msg = Message.obtain();
             msg.what = MessageConstants.MSG_UNFOLLOW_USER;
             msg.obj = userId;
+            msg.arg1 = position;
             networkHandler.sendMessage(msg);
             Log.d(TAG, "已发送取消关注用户请求: " + userId);
         } else {
@@ -214,7 +216,7 @@ public class ThreadManager {
     /**
      * 更新用户信息
      */
-    public void updateUser(User user) {
+    public void updateUser(User user, int position) {
         if (!isInitialized()) {
             Log.e(TAG, "线程管理器未初始化，无法执行更新操作");
             return;
@@ -225,8 +227,52 @@ public class ThreadManager {
             Message msg = Message.obtain();
             msg.what = MessageConstants.MSG_UPDATE_USER;
             msg.obj = user;
+            msg.arg1 = position;
             networkHandler.sendMessage(msg);
             Log.d(TAG, "已发送更新用户请求: " + user.getUserId());
+        } else {
+            Log.e(TAG, "无法获取网络处理器，刷新请求未发送");
+        }
+    }
+
+    /**
+     * 更新用户特别关注状态
+     */
+    public void updateUserSpecial(String userId, boolean isSpecial, int position) {
+        if (!isInitialized()) {
+            Log.e(TAG, "线程管理器未初始化，无法执行更新特别关注操作");
+            return;
+        }
+
+        Handler networkHandler = getNetworkHandler();
+        if (networkHandler != null) {
+            Message msg = Message.obtain();
+            msg.what = MessageConstants.MSG_TOGGLE_SPECIAL;
+            msg.obj = userId;
+            msg.arg1 = isSpecial ? 1 : 0;
+            msg.arg2 = position;
+            networkHandler.sendMessage(msg);
+            Log.d(TAG, "已发送更新用户特别关注请求: " + userId + ", isSpecial: " + isSpecial);
+        }
+    }
+
+    /**
+     * 更新用户备注
+     */
+    public void updateUserNote(User user, int position) {
+        if (!isInitialized()) {
+            Log.e(TAG, "线程管理器未初始化，无法执行更新备注操作");
+            return;
+        }
+
+        Handler networkHandler = getNetworkHandler();
+        if (networkHandler != null) {
+            Message msg = Message.obtain();
+            msg.what = MessageConstants.MSG_SET_USER_NOTE;
+            msg.obj = user;
+            msg.arg1 = position;
+            networkHandler.sendMessage(msg);
+            Log.d(TAG, "已发送更新用户备注请求: " + user.getUserId());
         } else {
             Log.e(TAG, "无法获取网络处理器，刷新请求未发送");
         }

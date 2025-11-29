@@ -264,6 +264,7 @@ public class FragmentFollowing extends Fragment {
             return;
         }
         User user = userList.get(position);
+        // Log.d(TAG, "找到用户对象: " + System.identityHashCode(user));
 
         if (user.isFollowed()) {
             handleUnfollowUser(position, user);
@@ -278,16 +279,10 @@ public class FragmentFollowing extends Fragment {
     private void handleUnfollowUser(int position, User user) {
         Log.d(TAG, "取消关注用户： " + user.getUsername());
 
-        // 立即更新UI（乐观更新）
-        user.setFollowed(false);
-        user.setSpecial(false);
-        userAdapter.notifyItemChanged(position);
-        updateFollowCount();
-
         // 发送取消关注请求
-        threadManager.unfollowUser(user.getUserId());
+        threadManager.unfollowUser(user.getUserId(), position);
 
-        Toast.makeText(getContext(), "已取消关注 " + user.getUsername(), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getContext(), "已取消关注 " + user.getUsername(), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -296,15 +291,17 @@ public class FragmentFollowing extends Fragment {
     private void handleFollowUser(int position, User user) {
         Log.d(TAG, "关注用户： " + user.getUsername());
 
-        // 立即更新UI（乐观更新）
-        user.setFollowed(true);
-        userAdapter.notifyItemChanged(position);
-        updateFollowCount();
-
         // 发送关注请求
-        threadManager.followUser(user.getUserId());
+        threadManager.followUser(user.getUserId(), position);
 
-        Toast.makeText(getContext(), "已关注 " + user.getUsername(), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getContext(), "已关注 " + user.getUsername(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleOperationSuccess(int position) {
+        if (position < 0 || position >= userList.size()) {
+            return;
+        }
+        userAdapter.notifyItemChanged(position);
     }
 
     /**
@@ -327,9 +324,9 @@ public class FragmentFollowing extends Fragment {
         }
 
         User user = userList.get(position);
-        Toast.makeText(getContext(), "更多操作: " + user.getUsername(), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getContext(), "更多操作: " + user.getUsername(), Toast.LENGTH_SHORT).show();
 
-        // TODO: 这里可以打开用户操作弹窗
+        showUserActionsDialog(position);
     }
 
     /**
@@ -353,6 +350,17 @@ public class FragmentFollowing extends Fragment {
                 break;
             case MessageConstants.MSG_HIDE_LOADING:
                 handleShowLoading(false);
+                break;
+            case MessageConstants.MSG_FOLLOW_USER_SUCCESS:
+            case MessageConstants.MSG_UNFOLLOW_USER_SUCCESS:
+            case MessageConstants.MSG_OPERATION_SUCCESS:
+            case MessageConstants.MSG_TOGGLE_SPECIAL_SUCCESS:
+            case MessageConstants.MSG_SET_USER_NOTE_SUCCESS:
+                int position = msg.arg1;
+                handleOperationSuccess(position);
+                break;
+            case MessageConstants.MSG_UPDATE_FOLLOW_COUNT:
+                updateFollowCount();
                 break;
             default:
                 Log.w(TAG, "未知消息类型: " + msg.what);
@@ -383,20 +391,26 @@ public class FragmentFollowing extends Fragment {
                 // 刷新或第一页：替换所有数据
                 userList.clear();
                 // Log.d(TAG, "清空后用户列表大小: " + userList.size());
-                userList.addAll(newUsers);
+                // 创建复制以避免引用问题
+                List<User> usersToAdd = new ArrayList<>(newUsers);
+                userList.addAll(usersToAdd);
                 // Log.d(TAG, "添加新数据后用户列表大小: " + userList.size());
                 if (userAdapter != null) {
-                    userAdapter.setData(userList);
+                    userAdapter.setData(usersToAdd);
                     // Log.d(TAG, "调用setData后，适配器数据量应更新");
                 } else {
                     Log.e(TAG, "用户适配器为null，无法设置数据");
                 }
-                Log.d(TAG, "刷新完成，共 " + userList.size() + " 条数据");
+                Log.d(TAG, "刷新完成，共 " + usersToAdd.size() + " 条数据");
             } else {
                 // 加载更多：追加数据
-                userList.addAll(newUsers);
-                userAdapter.addData(newUsers);
-                Log.d(TAG, "加载更多完成，共 " + userList.size() + " 条数据");
+                // 创建复制以避免引用问题
+                List<User> usersToAdd = new ArrayList<>(newUsers);
+                userList.addAll(usersToAdd);
+                if (userAdapter != null) {
+                    userAdapter.addData(usersToAdd);
+                }
+                Log.d(TAG, "加载更多完成，共 " + usersToAdd.size() + " 条数据");
             }
 
             userAdapter.setHasMore(hasMoreData);
@@ -408,9 +422,9 @@ public class FragmentFollowing extends Fragment {
 
             // 显示成功提示
             if (page == 0) {
-                Toast.makeText(getContext(), "关注列表已刷新, 共加载 " + newUsers.size() + " 位用户", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getContext(), "关注列表已刷新, 共加载 " + newUsers.size() + " 位用户", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "加载更多关注用户成功, 共加载 " + newUsers.size() + " 位用户", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getContext(), "加载更多关注用户成功, 共加载 " + newUsers.size() + " 位用户", Toast.LENGTH_SHORT).show();
             }
         } else {
             // 没有数据
@@ -468,15 +482,11 @@ public class FragmentFollowing extends Fragment {
      * 更新关注人数显示
      */
     private void updateFollowCount() {
-        if (followCountText != null) {
-            int followedCount = 0;
-            for (User user : userList) {
-                if (user.isFollowed()) {
-                    followedCount++;
-                }
-            }
-            String text = "我的关注（" + followedCount + "人）";
+        if (followCountText != null && threadManager != null) {
+            int followCount = threadManager.getUserRepository().getTotalFollowedCount();
+            String text = "我的关注（" + followCount + "人）";
             followCountText.setText(text);
+            Log.d(TAG, "更新关注人数显示: " + text);
         }
     }
 
@@ -590,6 +600,37 @@ public class FragmentFollowing extends Fragment {
 
         // 恢复滚动位置
         // restoreScrollPosition();
+    }
+
+    private void showUserActionsDialog(int position) {
+        if (position < 0 || position >= userList.size()) {
+            return;
+        }
+        User user = userList.get(position);
+        UserActionsDialog dialog = new UserActionsDialog(getContext(), user,
+                new UserActionsDialog.OnUserActionListener() {
+                    @Override
+                    public void onSpecialChanged(String userId, boolean isSpecial) {
+                        threadManager.updateUserSpecial(userId, isSpecial, position);
+                        Log.d(TAG, "更新用户特殊状态: " + userId + " -> " + isSpecial);
+                    }
+
+                    @Override
+                    public void onNoteChanged(String userId, String note) {
+                        User user1 = new User(user);
+                        user1.setNote(note);
+                        threadManager.updateUserNote(user1, position);
+                        Log.d(TAG, "更新用户备注: " + userId + " -> " + note);
+                    }
+
+                    @Override
+                    public void onUnfollow(String userId) {
+                        threadManager.unfollowUser(userId, position);
+                        Log.d(TAG, "通过对话框取消关注用户: " + userId);
+                    }
+                }
+        );
+        dialog.show();
     }
 
     // 滚动位置保持相关函数

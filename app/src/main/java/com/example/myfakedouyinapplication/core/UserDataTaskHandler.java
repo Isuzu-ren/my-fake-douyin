@@ -45,11 +45,11 @@ public class UserDataTaskHandler {
             List<User> users = userRepository.getUsersByPage(page, MessageConstants.PAGE_SIZE);
             boolean hasMoreData = userRepository.hasMoreData(page, MessageConstants.PAGE_SIZE);
 
-            // 调试日志
-            Log.d(TAG, "从UserRepository获取的数据量: " + (users != null ? users.size() : "null"));
-            if (users != null && !users.isEmpty()) {
-                Log.d(TAG, "第一条用户ID: " + users.get(0).getUserId());
-            }
+//            // 调试日志
+//            Log.d(TAG, "从UserRepository获取的数据量: " + (users != null ? users.size() : "null"));
+//            if (users != null && !users.isEmpty()) {
+//                Log.d(TAG, "第一条用户ID: " + users.get(0).getUserId());
+//            }
 
             // 发送成功消息到主线程
             Message successMsg = Message.obtain();
@@ -85,13 +85,14 @@ public class UserDataTaskHandler {
     /**
      * 处理关注用户操作
      */
-    public void handleFollowUser(String userIdx) {
+    public void handleFollowUser(String userIdx, int position) {
         Log.d(TAG, "处理关注用户请求: " + userIdx);
         try {
-            Thread.sleep(2);
+            Thread.sleep(0);
             boolean success = userRepository.followUser(userIdx);
             if (success) {
-                sendSuccessMessage("已关注用户 " + userIdx, MessageConstants.MSG_FOLLOW_USER_SUCCESS);
+                sendSuccessMessage("已关注用户 " + userIdx, MessageConstants.MSG_FOLLOW_USER_SUCCESS, position);
+                sendFollowCountUpdate();
             } else {
                 sendErrorMessage("关注用户失败");
             }
@@ -107,13 +108,14 @@ public class UserDataTaskHandler {
     /**
      * 处理取消关注用户操作
      */
-    public void handleUnfollowUser(String userIdx) {
+    public void handleUnfollowUser(String userIdx, int position) {
         Log.d(TAG, "处理取消关注用户请求: " + userIdx);
         try {
-            Thread.sleep(2);
+            Thread.sleep(0);
             boolean success = userRepository.unfollowUser(userIdx);
             if (success) {
-                sendSuccessMessage("已取消关注用户 " + userIdx, MessageConstants.MSG_UNFOLLOW_USER_SUCCESS);
+                sendSuccessMessage("已取消关注用户 " + userIdx, MessageConstants.MSG_UNFOLLOW_USER_SUCCESS, position);
+                sendFollowCountUpdate();
             } else {
                 sendErrorMessage("取消关注用户失败");
             }
@@ -129,13 +131,13 @@ public class UserDataTaskHandler {
     /**
      * 更新用户信息
      */
-    public void handleUpdateUser(User user) {
+    public void handleUpdateUser(User user, int position) {
         Log.d(TAG, "处理更新用户信息请求: " + user.getUserId());
         try {
-            Thread.sleep(2);
+            Thread.sleep(0);
             boolean success = userRepository.updateUser(user);
             if (success) {
-                sendSuccessMessage("用户信息已更新 " + user.getUserId(), MessageConstants.MSG_UPDATE_USER_SUCCESS);
+                sendSuccessMessage("用户信息已更新 " + user.getUserId(), MessageConstants.MSG_UPDATE_USER_SUCCESS, position);
             } else {
                 sendErrorMessage("更新用户信息失败");
             }
@@ -146,6 +148,59 @@ public class UserDataTaskHandler {
             Log.e(TAG, "更新用户信息时发生错误", e);
             sendErrorMessage("更新用户信息失败：" + e.getMessage());
         }
+    }
+
+    /**
+     * 更新用户特别关注
+     */
+    public void handleUpdateUserSpecial(String userId, boolean isSpecial, int position) {
+        Log.d(TAG, "处理更新用户特别关注请求: " + userId + "，状态: " + isSpecial);
+        try {
+            Thread.sleep(0);
+            boolean success = userRepository.setUserSpecial(userId, isSpecial);
+            if (success) {
+                sendSuccessMessage("用户特别关注状态已更新 " + userId, MessageConstants.MSG_TOGGLE_SPECIAL_SUCCESS, position);
+            } else {
+                sendErrorMessage("更新用户特别关注状态失败");
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "更新用户特别关注时被中断", e);
+            sendErrorMessage("更新用户特别关注状态失败：" + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "更新用户特别关注时发生错误", e);
+            sendErrorMessage("更新用户特别关注状态失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新用户备注
+     */
+    public void handleUpdateUserNote(String userId, String note, int position) {
+        Log.d(TAG, "处理更新用户备注请求: " + userId + "，备注: " + note);
+        try {
+            Thread.sleep(0);
+            boolean success = userRepository.setUserNote(userId, note);
+            if (success) {
+                sendSuccessMessage("用户备注已更新 " + userId, MessageConstants.MSG_SET_USER_NOTE_SUCCESS, position);
+            } else {
+                sendErrorMessage("更新用户备注失败");
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "更新用户备注时被中断", e);
+            sendErrorMessage("更新用户备注失败：" + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "更新用户备注时发生错误", e);
+            sendErrorMessage("更新用户备注失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 发送关注计数更新
+     */
+    private void sendFollowCountUpdate() {
+        Message msg = Message.obtain();
+        msg.what = MessageConstants.MSG_UPDATE_FOLLOW_COUNT;
+        mainThreadHandler.sendMessage(msg);
     }
 
     /**
@@ -161,10 +216,13 @@ public class UserDataTaskHandler {
     /**
      * 发送成功消息
      */
-    private void sendSuccessMessage(String message, int messageType) {
+    private void sendSuccessMessage(String message, int messageType, int position) {
         Message msg = Message.obtain();
         msg.what = messageType;
         msg.obj = message;
+        if (position >= 0) {
+            msg.arg1 = position;
+        }
         mainThreadHandler.sendMessage(msg);
         Log.d(TAG, "操作成功: " + message);
     }

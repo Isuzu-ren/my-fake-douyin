@@ -94,15 +94,16 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         int startPosition = userList.size();
-        this.userList.addAll(newUsers);
+        // 创建独立副本以防外部修改
+        List<User> usersCopy = new ArrayList<>(newUsers);
+        this.userList.addAll(usersCopy);
         if (startPosition >= 0 && startPosition < getItemCount()) {
-            notifyItemRangeInserted(startPosition, newUsers.size());
-            Log.d(TAG, "已通知插入范围: " + startPosition + " - " + (startPosition + newUsers.size()));
+            notifyItemRangeInserted(startPosition, usersCopy.size());
+            Log.d(TAG, "已通知插入范围: " + startPosition + " - " + (startPosition + usersCopy.size()));
         } else {
             Log.w(TAG, "起始位置超出范围，无法通知插入");
             notifyDataSetChanged();
         }
-
     }
 
     /**

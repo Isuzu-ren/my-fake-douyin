@@ -19,7 +19,11 @@ public class MessageConstants {
     public static final int MSG_FOLLOW_USER_SUCCESS = 2101;     // 关注成功
     public static final int MSG_UNFOLLOW_USER_SUCCESS = 2102;    // 取消关注成功
     public static final int MSG_UPDATE_USER_SUCCESS = 2103;     // 更新成功
-    
+    public static final int MSG_UPDATE_FOLLOW_COUNT = 2104;     // 更新关注数成功
+    public static final int MSG_SET_USER_NOTE_SUCCESS = 2105;      // 设置备注成功
+    public static final int MSG_TOGGLE_SPECIAL_SUCCESS = 2106;  // 切换特别关注成功
+    public static final int MSG_OPERATION_SUCCESS = 2107;   // 通用操作成功
+
     // ========== 分页控制消息 ==========
     public static final int MSG_HAS_MORE_DATA = 3001;           // 还有更多数据
     public static final int MSG_NO_MORE_DATA = 3002;             // 没有更多数据
