@@ -113,8 +113,8 @@ public class UserRepository {
      * 生成网络头像URL
      */
     private String generateAvatarUrl(int index) {
-        // 使用稳定的图片服务（避免随机变化导致重复加载）
-        int imageId = index % 100; // 限制在100张图片内循环
+        // 使用稳定的图片服务
+        int imageId = index % 100;
         return "https://picsum.photos/200/200?image=" + imageId;
     }
 

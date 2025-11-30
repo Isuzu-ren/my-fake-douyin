@@ -79,6 +79,9 @@ public class FragmentFollowing extends Fragment
         // 加载初始数据
         loadInitialData();
 
+        // 设置滚动优化
+        setupScrollOptimization();
+
         return view;
     }
 
