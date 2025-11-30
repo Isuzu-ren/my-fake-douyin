@@ -1,6 +1,5 @@
 package com.example.myfakedouyinapplication.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Parcelable;
@@ -25,11 +24,13 @@ import com.example.myfakedouyinapplication.core.ThreadManager;
 import com.example.myfakedouyinapplication.dialogs.UserActionsDialog;
 import com.example.myfakedouyinapplication.models.User;
 import com.example.myfakedouyinapplication.utils.ImageLoader;
+import com.example.myfakedouyinapplication.utils.PerformanceMonitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentFollowing extends Fragment {
+public class FragmentFollowing extends Fragment
+        implements PerformanceMonitor.FpsListener {
     private static final String TAG = "FragmentFollowing";
 
     // UI组件
@@ -170,6 +171,9 @@ public class FragmentFollowing extends Fragment {
                 handleMoreClick(position);
             }
         });
+
+        // 性能优化
+        userRecyclerView.setHasFixedSize(true);
     }
 
     /**
@@ -718,6 +722,95 @@ public class FragmentFollowing extends Fragment {
         }
     }
 
+    // FPS监听回调
+    private PerformanceMonitor fpsMonitor;
+    private double currentFps = 60.0;
+    private long lowFpsStartTime = 0;
+    private boolean isLowFps = false;
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // startFpsMonitoring();
+    }
+
+    /**
+     * 启动FPS监控（最小集成）
+     */
+    private void startFpsMonitoring() {
+        fpsMonitor = new PerformanceMonitor();
+        fpsMonitor.startMonitoring(userRecyclerView, this);
+        Log.d(TAG, "FPS监控已启动");
+    }
+
+    // 实现FPS监听回调
+    @Override
+    public void onFpsUpdate(double fps) {
+        currentFps = fps;
+        Log.d(TAG, String.format("当前FPS: %.2f", fps));
+        if (isLowFps && fps >= 59.0) {
+            isLowFps = false;
+            releaseQuickOptimization();
+            Log.d(TAG, "FPS恢复正常，解除快速优化");
+        }
+    }
+
+    @Override
+    public void onLowFps(double fps) {
+        Log.d(TAG, String.format("检测到低FPS: %.2f", fps));
+        if (!isLowFps) {
+            isLowFps = true;
+            lowFpsStartTime = System.currentTimeMillis();
+            triggerQuickOptimization();
+        }
+    }
+
+    /**
+     * 快速优化措施
+     */
+    private void triggerQuickOptimization() {
+        Log.d(TAG, "触发快速优化...");
+
+        // 暂停图片加载
+        if (getContext() != null) {
+            ImageLoader.pauseLoads(getContext());
+            Log.d(TAG, "快速优化：图片加载已暂停");
+        }
+
+        // 禁用动画
+        if (userRecyclerView != null) {
+            userRecyclerView.setItemAnimator(null);
+            Log.d(TAG, "快速优化：RecyclerView动画已禁用");
+        }
+    }
+
+    /**
+     * 解除快速优化措施
+     */
+    private void releaseQuickOptimization() {
+        Log.d(TAG, "解除快速优化...");
+
+        // 恢复图片加载
+        if (getContext() != null) {
+            ImageLoader.resumeLoads(getContext());
+            Log.d(TAG, "解除快速优化：图片加载已恢复");
+        }
+
+        // 恢复动画
+        // 这里可以重新设置默认动画，或者自定义动画
+        // 暂时不恢复以简化逻辑
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (fpsMonitor != null) {
+            fpsMonitor.stop();
+            fpsMonitor = null;
+            Log.d(TAG, "FPS监控已销毁");
+        }
+    }
 
     // 滚动位置保持相关函数
 
