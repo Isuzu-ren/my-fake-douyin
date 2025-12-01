@@ -1,4 +1,4 @@
-# 我的抖音应用 (My Fake Douyin Application) - 重构版
+# 我的抖音应用 (My Fake Douyin Application)
 
 一个仿抖音关注功能的 Android 客户端应用，实现了**现代化的异步架构**、用户关注管理、分页加载、网络数据集成等核心功能。
 
@@ -99,8 +99,20 @@ app/src/main/java/com/example/myfakedouyinapplication/
 │   └── UserActionsDialog.java      # 用户操作弹窗
 ├── utils/                          # 工具类
 │   └── ImageLoader.java            # 图片加载工具
-└── constants/                      # 常量
-    └── MessageConstants.java       # 消息协议常量
+├── constants/                      # 常量
+│   └── MessageConstants.java       # 消息协议常量
+└── MainActivity.java               # 主活动入口
+```
+
+```
+app/src/main/res/
+├── layout/                         # 布局文件
+│   ├── activity_main.xml           # 主活动布局
+│   ├── fragment_following.xml      # 关注页面布局
+│   ├── item_user.xml               # 用户列表项布局
+│   └── dialog_user_actions.xml     # 用户操作弹窗布局
+├── drawable/                       # 图片资源
+└── values/                         # 资源值
 ```
 
 ## 🚀🚀🚀 快速开始
